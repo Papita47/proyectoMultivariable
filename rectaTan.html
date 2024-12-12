@@ -1,0 +1,237 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ubuntu:ital,wght@0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.7.0/math.min.js"></script>
+    <title>Generador de Gráficas</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="generalOptions">
+        <button class="back-button" onclick="regresar()">↩</button>
+        <h1 class="titleCurves">Recta Tangente</h1>
+    
+        <div class="formulaAndKeyboard">
+            <input type="text" id="formula" class="inputFormula" placeholder="Formula" required>
+            <button id="toggleKeyboard" class="toggleKeyboard">
+                <img src="teclado.png" alt="Teclado" style="width: 40px; height: 40px;">
+            </button>
+        </div>
+    
+        <div id="mathKeyboard" class="math-keyboard" style="display: none;">
+            <!-- Operadores -->
+            <button class="operator" onclick="insertFormula('^')">^</button>
+            <button class="operator" onclick="insertFormula('+')">+</button>
+            <button class="operator" onclick="insertFormula('-')">-</button>
+            <button class="operator" onclick="insertFormula('*')">×</button>
+            <button class="operator" onclick="insertFormula('/')">/</button>
+            <!-- Funciones -->
+            <button class="function" onclick="insertFormula('sqrt(')">√</button>
+            <button class="function" onclick="insertFormula('sin(')">sin</button>
+            <button class="function" onclick="insertFormula('cos(')">cos</button>
+            <button class="function" onclick="insertFormula('tan(')">tan</button>
+            <button class="function" onclick="insertFormula('log(')">log</button>
+            <!-- Constantes -->
+            <button onclick="insertFormula('pi')" class="pi">π</button>
+            <button onclick="insertFormula('e')" class="euler">e</button>
+            <!-- Paréntesis -->
+            <button onclick="insertFormula('(')" class="parentesis">(</button>
+            <button onclick="insertFormula(')')" class="parentesis">)</button>
+        </div>
+        <div class="nivel-container">
+            <div class="level-group">
+                <label for="k" class="labelInput">Intervalo</label>
+                <input type="number" id="k" placeholder="Intervalo" class="inputNumber" required>
+            </div>
+            <div class="level-group">
+                <label for="a" class="labelInput">Inicio</label>
+                <input type="number" id="a" placeholder="Inicial x" class="inputNumber" required>
+            </div>
+            <div class="level-group">
+                <label for="b" class="labelInput">Fin</label>
+                <input type="number" id="b" placeholder="Final x" class="inputNumber" required>
+            </div>  
+        </div>
+    
+        <div id="buttonContainer">
+            <button id="actionButton" class="buttonGenerar" onclick="generarGrafica()">Generar Gráfica</button>
+        </div>
+        
+        <div id="tangentInfo" style="margin-top: 20px;"></div> <!-- Área para la información de la tangente -->
+        
+        <div id="plot" class="plot-container"></div>
+    
+        
+    </div>
+    
+    <script>
+        function regresar() {
+        window.location.href = 'index.html';
+        }
+
+        document.getElementById('toggleKeyboard').addEventListener('click', () => {
+            const keyboard = document.getElementById('mathKeyboard');
+            keyboard.style.display = keyboard.style.display === 'none' ? 'block' : 'none';
+        });
+
+        function insertFormula(value) {
+            const formulaInput = document.getElementById("formula");
+            const start = formulaInput.selectionStart;
+            const end = formulaInput.selectionEnd;
+            const currentValue = formulaInput.value;
+
+            formulaInput.value = 
+                currentValue.substring(0, start) +
+                value +
+                currentValue.substring(end);
+
+            formulaInput.focus();
+            formulaInput.setSelectionRange(start + value.length, start + value.length);
+        }
+
+        let currentTangentLineIndex = null;
+
+        function inicializarGrafica() {
+            console.log("Inicializando la gráfica...");
+
+            // Configurar un gráfico vacío con ejes y títulos
+            const data = [];
+            const layout = {
+                title: 'Gráfico vacío',
+                xaxis: { title: 'x', range: [-10, 10] },
+                yaxis: { title: 'y', range: [-10, 10] },
+                showlegend: false,
+            };
+
+            Plotly.newPlot('plot', data, layout);
+        }
+
+
+        function generarGrafica() {
+            const formulaText = document.getElementById('formula').value.trim();
+            const a = parseFloat(document.getElementById('a').value);
+            const b = parseFloat(document.getElementById('b').value);
+            const k = parseFloat(document.getElementById('k').value);
+
+            if (!formulaText || isNaN(a) || isNaN(b) || isNaN(k)) {
+                alert('Por favor, ingresa una fórmula válida y los valores de a, b y k.');
+                return;
+            }
+
+            const formula = formulaText;
+            const resolution = 100;
+            const xValues = Array.from({ length: resolution }, (_, i) => a + (b - a) * i / (resolution - 1));
+            const yValues = [];
+            const verticalLines = [];
+            const intersectionPoints = [];
+
+            let yMin = Infinity;
+            let yMax = -Infinity;
+
+            for (let i = 0; i < xValues.length; i++) {
+                try {
+                    const x = xValues[i];
+                    const y = math.evaluate(formula, { x: x });
+                    yValues.push(y);
+
+                    if (y < yMin) yMin = y;
+                    if (y > yMax) yMax = y;
+
+                    if (Math.abs((x - a) % k) < (b - a) / resolution) {
+                        verticalLines.push({ x: x });
+                        const yIntersection = math.evaluate(formula, { x: x });
+                        intersectionPoints.push({ x: x, y: yIntersection });
+                    }
+                } catch (e) {
+                    yValues.push(NaN);
+                }
+            }
+
+            const data = [
+                {
+                    x: xValues,
+                    y: yValues,
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: `Función: ${formula}`,
+                    line: { shape: 'spline' },
+                },
+                ...verticalLines.map(line => ({
+                    x: [line.x, line.x],
+                    y: [yMin, yMax],
+                    type: 'scatter',
+                    mode: 'lines',
+                    line: { dash: 'dot', width: 2, color: 'red' },
+                    name: `Línea en x = ${line.x}`,
+                })),
+                ...intersectionPoints.map(point => ({
+                    x: [point.x],
+                    y: [point.y],
+                    type: 'scatter',
+                    mode: 'markers',
+                    marker: { color: 'blue', size: 10 },
+                    name: `Intersección en x = ${point.x.toFixed(2)}`,
+                })),
+            ];
+
+            const layout = {
+                title: `Gráfica de ${formula}`,
+                xaxis: { title: 'x', range: [a, b] },
+                yaxis: { title: 'y', range: [yMin - 1, yMax + 1] },
+                showlegend: false,
+            };
+
+            Plotly.newPlot('plot', data, layout);
+
+            const plotElement = document.getElementById('plot');
+            plotElement.on('plotly_click', function(eventData) {
+                const xClicked = eventData.points[0].x;
+                const yClicked = eventData.points[0].y;
+
+                const derivative = math.derivative(formula, 'x').toString();
+                const slope = math.evaluate(derivative, { x: xClicked });
+
+                const tangentXValues = Array.from({ length: 100 }, (_, i) => a + (b - a) * i / (100 - 1));
+                const tangentYValues = tangentXValues.map(x => yClicked + slope * (x - xClicked));
+
+                if (currentTangentLineIndex !== null) {
+                    Plotly.deleteTraces('plot', currentTangentLineIndex);
+                }
+
+                currentTangentLineIndex = data.length;
+                data.push({
+                    x: tangentXValues,
+                    y: tangentYValues,
+                    type: 'scatter',
+                    mode: 'lines',
+                    line: { color: 'green', width: 2 },
+                    name: `Tangente en x = ${xClicked.toFixed(2)}`,
+                });
+
+                Plotly.react('plot', data, layout);
+
+                const tangentFormula = `y - ${yClicked.toFixed(2)} = ${slope.toFixed(2)}(x - ${xClicked.toFixed(2)})`;
+                document.getElementById('tangentInfo').innerHTML = `
+                    <h4>Recta Tangente en x = ${xClicked.toFixed(2)}:</h4>
+                    <p><b>Fórmula:</b> ${tangentFormula}</p>
+                    <p><b>Inclinación (Pendiente):</b> ${slope.toFixed(2)}</p>
+                `;
+            });
+
+            const buttonContainer = document.getElementById('buttonContainer');
+            buttonContainer.innerHTML = '<button id="actionButton" onclick="refrescarPagina()" class="buttonGenerar">Borrar y Reiniciar</button>';
+        }
+
+        function refrescarPagina() {
+            location.reload();
+        }
+        window.onload = inicializarGrafica;
+    </script>
+</body>
+</html>

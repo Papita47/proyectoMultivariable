@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Ubuntu:ital,wght@0,400;0,500;0,700;1,300;1,400;1,500;1,700&display=swap" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.7.0/math.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <title>Curvas de Nivel Interactivas</title>
+</head>
+<body>
+    <div class="generalOptions">
+            <button class="back-button" onclick="regresar()">↩</button>
+            <h1 class="titleCurves">Generador de Curvas de Nivel</h1>
+        <div class="formulaAndKeyboard">
+            <input type="text" id="formula" class="inputFormula" placeholder="Formula" required>
+            <button id="toggleKeyboard" class="toggleKeyboard">
+                <img src="teclado.png" alt="https://www.flaticon.es/iconos-gratis/teclado" style="width: 40px; height: 40px;">
+            </button>
+        </div>
+    
+        <div id="mathKeyboard" class="math-keyboard" style="display: none;">
+            <!-- Operadores -->
+            <button class="operator" onclick="insertFormula('^')">^</button>
+            <button class="operator" onclick="insertFormula('+')">+</button>
+            <button class="operator" onclick="insertFormula('-')">-</button>
+            <button class="operator" onclick="insertFormula('*')">×</button>
+            <button class="operator" onclick="insertFormula('/')">/</button>
+            <!-- Funciones -->
+            <button class="function" onclick="insertFormula('sqrt(')">√</button>
+            <button class="function" onclick="insertFormula('sin(')">sin</button>
+            <button class="function" onclick="insertFormula('cos(')">cos</button>
+            <button class="function" onclick="insertFormula('tan(')">tan</button>
+            <button class="function" onclick="insertFormula('log(')">log</button>
+            <!-- Constantes -->
+            <button onclick="insertFormula('pi')" class="pi">π</button>
+            <button onclick="insertFormula('e')" class="euler">e</button>
+            <!-- Paréntesis -->
+            <button onclick="insertFormula('(')" class="parentesis">(</button>
+            <button onclick="insertFormula(')')" class="parentesis">)</button>
+        </div>
+    
+        <div>
+            <input type="radio" id="vista2d" name="vista" value="2d" class="radio">
+            <label for="vista2d" class="label-radio">2D</label>
+            <input type="radio" id="vista3d" name="vista" value="3d" class="radio" checked>
+            <label for="vista3d">3D</label>
+        </div>
+    
+        <div class="options" id="options">
+            <div class="nivel-container">
+                <div class="level-group">
+                    <label for="nivelInicial" class="labelInput">Nivel inicial:</label>
+                    <input type="number" id="nivelInicial" step="0.1" value="0" class="inputNumber">
+                </div>
+                    <div class="level-group">
+                        <label for="nivelOne" class="labelInput">Niveles arriba:</label>
+                        <input type="number" id="nivelOne" step="1" value="5" class="inputNumber">
+                    </div>
+                    <div class="level-group">
+                        <label for="nivelTwo" class="labelInput">Niveles abajo:</label>
+                        <input type="number" id="nivelTwo" step="1" value="5" class="inputNumber">
+                    </div>
+            </div>
+    
+                <div class="listDep">
+                    <label for="eje" class="labelDependiente">Seleccionar variable dependiente:</label>
+                    <select id="eje" class="selectDependiente">
+                        <option value="z">z = f(x, y)</option>
+                        <option value="y">y = f(x, z)</option>
+                        <option value="x">x = f(y, z)</option>
+                    </select>
+                </div>
+        </div>
+        <button onclick="generarGrafica()" class="buttonGenerar">Generar</button>
+        <div id="plot" style="width: 1400px; height: 900px; margin:50px;"></div>
+    </div>
+    
+
+    <script>
+        function regresar() {
+        window.location.href = 'index.html';
+        }
+
+        document.getElementById('toggleKeyboard').addEventListener('click', () => {
+            const keyboard = document.getElementById('mathKeyboard');
+            keyboard.style.display = keyboard.style.display === 'none' ? 'block' : 'none';
+        });
+
+        function insertFormula(value) {
+            const formulaInput = document.getElementById("formula");
+            const start = formulaInput.selectionStart;
+            const end = formulaInput.selectionEnd;
+            const currentValue = formulaInput.value;
+
+            formulaInput.value = 
+                currentValue.substring(0, start) +
+                value +
+                currentValue.substring(end);
+
+            formulaInput.focus();
+            formulaInput.setSelectionRange(start + value.length, start + value.length);
+        }
+
+        function clearFormula() {
+            document.getElementById("formula").value = "";
+        }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const vistaRadio = document.querySelectorAll('input[name="vista"]');
+            const optionsDiv = document.getElementById("options");
+
+            // Función para actualizar visibilidad de "options"
+            function actualizarVisibilidad() {
+                const vistaSeleccionada = document.querySelector('input[name="vista"]:checked').value;
+                if (vistaSeleccionada === "3d") {
+                    optionsDiv.classList.add("hidden");
+                } else {
+                    optionsDiv.classList.remove("hidden");
+                }
+            }
+
+            // Escuchar cambios en los radio buttons
+            vistaRadio.forEach(radio => {
+                radio.addEventListener("change", actualizarVisibilidad);
+            });
+
+            // Inicializar visibilidad según selección actual
+            actualizarVisibilidad();
+        });
+
+
+    document.addEventListener("DOMContentLoaded", generarVistaInicial);
+
+        function generarVistaInicial() {
+            const valores = Array.from({ length: 50 }, (_, i) => -10 + (20 * i) / 49);
+            const superficie = { x: [], y: [], z: [] };
+
+            for (let i = 0; i < valores.length; i++) {
+                const filaX = [];
+                const filaY = [];
+                const filaZ = [];
+                for (let j = 0; j < valores.length; j++) {
+                    const x = valores[i];
+                    const y = valores[j];
+                    const z = x ** 2 + y ** 2 - 1; // Fórmula inicial fija
+                    filaX.push(x);
+                    filaY.push(y);
+                    filaZ.push(z);
+                }
+                superficie.x.push(filaX);
+                superficie.y.push(filaY);
+                superficie.z.push(filaZ);
+            }
+
+            const data = [
+                {
+                    type: "surface",
+                    x: superficie.x,
+                    y: superficie.y,
+                    z: superficie.z,
+                    showscale: true,
+                },
+            ];
+
+            Plotly.newPlot("plot", data, {
+                title: "Superficie Inicial (z = x² + y² - 1)",
+            });
+        }
+
+        function generarGrafica() {
+            const formulaText = document.getElementById('formula').value.trim();
+            const nivelInicial = parseFloat(document.getElementById('nivelInicial').value);
+            const nivelesArriba = parseInt(document.getElementById('nivelOne').value);
+            const nivelesAbajo = parseInt(document.getElementById('nivelTwo').value);
+            const ejeSeleccionado = document.getElementById('eje').value;
+            const vistaSeleccionada = document.querySelector('input[name="vista"]:checked').value;
+
+
+            if (!formulaText) {
+                alert('Por favor, ingresa una fórmula válida.');
+                return;
+            }
+
+            let formula;
+            try {
+                formula = math.parse(formulaText).compile();
+            } catch (e) {
+                alert(`Error en la fórmula: ${e.message}`);
+                return;
+            }
+
+            const rangeLimit = 10; // Límite del rango para los valores de x, y, z
+            const resolution = 50; // Resolución de la gráfica
+            const valores = Array.from({ length: resolution }, (_, i) => -rangeLimit + (2 * rangeLimit * i) / (resolution - 1));
+            const data = [];
+
+            if (vistaSeleccionada === "2d") {
+                const niveles = Array.from(
+                    { length: nivelesArriba + nivelesAbajo + 1 },
+                    (_, i) => nivelInicial + i - nivelesAbajo
+                );
+
+                const xValues = valores;
+                const yValues = valores;
+                const zValues = [];
+
+                for (let i = 0; i < xValues.length; i++) {
+                    const filaZ = [];
+                    for (let j = 0; j < yValues.length; j++) {
+                        const vars = { x: xValues[i], y: yValues[j], z: 0 };
+                        vars[ejeSeleccionado] = 0;
+                        try {
+                            filaZ.push(formula.evaluate(vars));
+                        } catch {
+                            filaZ.push(NaN);
+                        }
+                    }
+                    zValues.push(filaZ);
+                }
+
+                data.push({
+                    type: "contour",
+                    x: xValues,
+                    y: yValues,
+                    z: zValues,
+                    colorscale: "Viridis",
+                    contours: {
+                        start: nivelInicial - nivelesAbajo,
+                        end: nivelInicial + nivelesArriba,
+                        size: 1,
+                        coloring: "lines",
+                    },
+                });
+
+                Plotly.newPlot("plot", data, {
+                    title: `Curvas de Nivel (${ejeSeleccionado.toUpperCase()} = f(x, y))`,
+                    xaxis: { title: "x" },
+                    yaxis: { title: "y" },
+                });
+            } if (vistaSeleccionada === "3d") {
+                const xValues = valores;
+                const yValues = valores;
+                const zValues = [];
+
+                for (let i = 0; i < valores.length; i++) {
+                    const filaZ = [];
+                    for (let j = 0; j < valores.length; j++) {
+                        const evalVars = { x: xValues[i], y: yValues[j] };
+                        evalVars[ejeSeleccionado] = nivelInicial;
+                        try {
+                            filaZ.push(formula.evaluate(evalVars));
+                        } catch {
+                            filaZ.push(NaN);
+                        }
+                    }
+                    zValues.push(filaZ);
+                }
+
+                data.push({
+                    type: "surface",
+                    x: xValues,
+                    y: yValues,
+                    z: zValues,
+                    colorscale: "Viridis",
+                    showscale: true,
+                });
+
+                Plotly.newPlot("plot", data, {
+                    title: `Superficie 3D (${formulaText})`,
+                    scene: {
+                        xaxis: { title: "x" },
+                        yaxis: { title: "y" },
+                        zaxis: { title: "z" },
+                    },
+                });
+            }
+        }
+    </script>
+</body>
+</html>
+
+        
+        
+        
+       
+
+        

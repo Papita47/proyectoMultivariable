@@ -1,0 +1,313 @@
+/* Ocultar elementos */
+.hidden {
+    display: none;
+}
+
+.generalOptions {
+    font-family: "Poppins";
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra horizontalmente */
+    justify-content: center; /* Centra verticalmente */
+    padding: 20px;
+    background-color: #f4f4f4;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    margin: 20px auto;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 1; /* Se asegura de estar por encima de otros elementos */
+}
+
+/* Estilo del título */
+.titleCurves {
+    color: #939393;
+    font-size: 18px;
+    margin-bottom: 20px;
+    text-align: center;
+}
+
+.back-button {
+    position: absolute; /* Permite posicionarlo dentro del contenedor */
+    top: 10px; /* Espaciado desde la parte superior del contenedor */
+    left: 10px; /* Espaciado desde la izquierda del contenedor */
+    display: flex;
+    font-family: "Poppins", sans-serif;
+    font-size: 25px;
+    font-weight: 900;
+    color: #FFFFFF;
+    background-color: #FF023D;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Hover del botón */
+.back-button:hover {
+    background-color: rgb(127, 13, 13);
+}
+
+
+/* Contenedor para inputFormula y toggleKeyboard */
+.formulaAndKeyboard {
+    display: flex;
+    justify-content: center; /* Centra horizontalmente */
+    align-items: center; /* Alinea verticalmente */
+    gap: 10px;
+    flex-wrap: nowrap; /* Mantiene una fila */
+    margin-bottom: 15px;
+}
+
+/* Input fórmula */
+.inputFormula {
+    border: 1px solid #d3d3d3;
+    flex: 1;
+    height: 45px; 
+    font-size: 16px;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    text-align: center;
+    transition: border-color 0.3s ease;
+}
+
+.inputFormula:focus {
+    outline: none;
+    border-color: #FF023D;
+}
+
+.toggleKeyboard {
+    height: 45px;
+    font-weight: bold;
+    font-family: "Poppins";
+    font-size: 14px;
+    background: #FF023D;
+    border: none;
+    color: whitesmoke;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.toggleKeyboard:hover {
+    background-color: rgb(127, 13, 13);
+}
+
+/* Teclado matemático */
+.math-keyboard {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    padding: 15px;
+    background-color: #FF023D;
+    border-radius: 5px;
+    margin: 10px;
+}
+
+.math-keyboard button {
+    font-family: "Poppins";
+    font-size: 14px;
+    cursor: pointer;
+    border: none;
+    border-radius: 5px;
+    color: #939393;
+    background-color: white;
+    transition: background-color 0.3s;
+}
+
+.math-keyboard button:hover {
+    background-color: #f0f0f0;
+}
+
+.math-keyboard button:active {
+    background-color: #e0e0e0;
+}
+
+/* Radio buttons */
+.radio {
+    --s: 1em; 
+    --c: #FF023D; 
+    width: var(--s); 
+    height: var(--s);
+    background-color: #939393; 
+    border-radius: 50%; 
+    outline-offset: calc(var(--s) / 10); 
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none; 
+    cursor: pointer;
+    font-size: inherit;
+    transition: 0.3s ease; 
+}
+
+.radio:checked {
+    background-color: var(--c); 
+    border-color: var(--c); 
+}
+
+/* Contenedor de niveles */
+.nivel-container {
+    display: flex;
+    justify-content: center;
+    gap: 20px; /* Mayor separación entre grupos */
+    margin-top: 10px;
+}
+
+.level-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra verticalmente */
+    gap: 5px;
+}
+
+/* Inputs de número */
+.inputNumber {
+    font-family: "Poppins";
+    font-size: 12px;
+    border: 1px solid #d3d3d3;
+    border-radius: 5px;
+    background-color: #f9f9f9;
+    color: #939393;
+    width: 100%; 
+    max-width: 80px; 
+    padding: 5px;
+    text-align: center;
+    transition: border-color 0.3s ease;
+}
+
+.inputNumber:focus {
+    outline: none;
+    border-color: #FF023D;
+}
+
+/* Select dependiente */
+.listDep {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Centra horizontalmente */
+    margin-top: 10px;
+}
+
+.selectDependiente {
+    font-family: "Poppins";
+    font-size: 12px;
+    width: 100%;
+    max-width: 180px;
+    padding: 5px;
+    border: 1px solid #d3d3d3;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #939393;
+    cursor: pointer;
+    transition: border-color 0.3s, background-color 0.3s;
+    appearance: none; 
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="%23939393"><path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 011.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" /></svg>');
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    background-size: 14px;
+}
+
+.selectDependiente:focus {
+    outline: none;
+    border-color: #FF023D;
+}
+
+/* Botón de generar */
+.buttonGenerar {
+    font-weight: bold;
+    font-family: "Poppins";
+    font-size: 16px;
+    background: #FF023D;
+    border: none;
+    color: whitesmoke;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 15px;
+    transition: background-color 0.3s ease;
+    text-align: center;
+    align-self: center; /* Centra el botón horizontalmente */
+}
+
+.buttonGenerar:hover {
+    background-color: rgb(127, 13, 13);
+}
+
+/* Contenedor de la gráfica */
+#plot {
+    width: 90%;
+    max-width: 1400px;
+    height: 900px;
+    margin: 0 auto 50px auto;
+    background-color: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 0; /* Asegura que esté por detrás de las opciones */
+}
+
+
+.container {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; 
+    margin-right: 2%;/* Alinea los elementos al inicio del contenedor */
+}
+
+.titleOpcion{
+    float: right;
+    display: flex;
+    text-align: right;
+    font-family: "Poppins";
+    font-size: 450%;
+    color: #939393;
+    margin-top: 25%;
+}
+
+.imageProfesor{
+    margin-right:5% ;
+    float: right;
+    width: 50%;
+    height: 50%;
+}
+
+.optionsContainer{
+    display: flex;
+    justify-content: space-between;
+    width: 70%;
+    background-color: #f4f4f4;
+    border: none;
+    margin-top: 6%;
+    margin-left: 4%;
+    border-radius: 10px;
+    padding: 2%;
+}
+.buttonOpcion{
+    font-weight: 600;
+    background-color: #FF023D;
+    font-family: "Poppins";
+    color: white;
+    font-size: 170%;
+    border: none;
+    border-radius: 10px;
+    margin: 2%;
+    width: 100%;
+    padding: 5% 5% 10% 5%;
+    transition: background-color 0.3s ease;
+}
+.buttonOpcion:hover{
+    background-color: rgb(127, 13, 13);
+}
+
+.imgCurvasNivel{
+    width: 85%;
+    height: 78%;
+    margin: 5%;
+}
+.imgRectaTan{
+    width: 85%;
+    height: 78%;
+    margin: 5%;
+}
